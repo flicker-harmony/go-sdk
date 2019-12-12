@@ -85,9 +85,14 @@ func FromAccountName(name string) *keystore.KeyStore {
 	return common.KeyStoreForPath(p)
 }
 
-func DefaultLocation() string {
+func DefaultAccountLocation() string {
 	uDir, _ := homedir.Dir()
 	return path.Join(uDir, c.DefaultConfigDirName, c.DefaultConfigAccountAliasesDirName)
+}
+
+func DefaultBlsLocation() string {
+	uDir, _ := homedir.Dir()
+	return path.Join(uDir, c.DefaultConfigDirName, c.DefaultConfigBlsDirName)
 }
 
 func UnlockedKeystore(from, unlockP string) (*keystore.KeyStore, *accounts.Account, error) {
