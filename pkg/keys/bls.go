@@ -17,6 +17,7 @@ import (
 
 	ffiBls "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/go-sdk/pkg/common"
+	"github.com/harmony-one/go-sdk/pkg/store"
 	"github.com/harmony-one/harmony/crypto/bls"
 	"github.com/harmony-one/harmony/crypto/hash"
 	"github.com/harmony-one/harmony/shard"
@@ -85,8 +86,8 @@ func SaveBlsKey(passphrase, filePath, privateKeyHex string) error {
 		return err
 	}
 	if filePath == "" {
-		cwd, _ := os.Getwd()
-		filePath = fmt.Sprintf("%s/%s.key", cwd, privateKey.GetPublicKey().SerializeToHexStr())
+		filePath = fmt.Sprintf("%s/%s.key", store.DefaultBlsLocation(),
+			privateKey.GetPublicKey().SerializeToHexStr())
 	}
 	if !path.IsAbs(filePath) {
 		return common.ErrNotAbsPath

@@ -5,22 +5,26 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
 
 	"github.com/harmony-one/go-sdk/pkg/address"
 	"github.com/harmony-one/go-sdk/pkg/common"
 	c "github.com/harmony-one/go-sdk/pkg/common"
 	"github.com/harmony-one/harmony/accounts"
 	"github.com/harmony-one/harmony/accounts/keystore"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
-
-	homedir "github.com/mitchellh/go-homedir"
 )
 
 func init() {
 	uDir, _ := homedir.Dir()
-	hmyCLIDir := path.Join(uDir, common.DefaultConfigDirName, common.DefaultConfigAccountAliasesDirName)
-	if _, err := os.Stat(hmyCLIDir); os.IsNotExist(err) {
-		os.MkdirAll(hmyCLIDir, 0700)
+	hmyAccDir := path.Join(uDir, common.DefaultConfigDirName, common.DefaultConfigAccountAliasesDirName)
+	if _, err := os.Stat(hmyAccDir); os.IsNotExist(err) {
+		os.MkdirAll(hmyAccDir, 0700)
+	}
+	hmyBlsDir := path.Join(uDir, common.DefaultConfigDirName, common.DefaultConfigBlsDirName)
+	if _, err := os.Stat(hmyBlsDir); os.IsNotExist(err) {
+		os.MkdirAll(hmyBlsDir, 0700)
 	}
 }
 
@@ -32,28 +36,51 @@ func LocalAccounts() []string {
 		common.DefaultConfigDirName,
 		common.DefaultConfigAccountAliasesDirName,
 	))
-	accounts := []string{}
+	var accs []string
 	for _, node := range files {
 		if node.IsDir() {
-			accounts = append(accounts, path.Base(node.Name()))
+			accs = append(accs, path.Base(node.Name()))
 		}
 	}
-	return accounts
+	return accs
+}
+
+// LocalBlsKeys returns a slice of encrypted BLS key filenames
+func LocalBlsKeys() []string {
+	uDir, _ := homedir.Dir()
+	files, _ := ioutil.ReadDir(path.Join(
+		uDir,
+		common.DefaultConfigDirName,
+		common.DefaultConfigBlsDirName,
+	))
+	var blsKeys []string
+	for _, f := range files {
+		if strings.HasPrefix(f.Name(), ".") {
+			continue
+		}
+		blsKeys = append(blsKeys, path.Base(f.Name()))
+	}
+	return blsKeys
 }
 
 var (
-	describe              = fmt.Sprintf("%-24s\t\t%23s\n", "NAME", "ADDRESS")
+	describeAddress       = fmt.Sprintf("%-24s\t\t%23s\n", "NAME", "ADDRESS")
+	describeBls           = fmt.Sprintf("\nBLS KEYS (public)\n")
 	NoUnlockBadPassphrase = errors.New("could not unlock account with passphrase, perhaps need different phrase")
 )
 
 func DescribeLocalAccounts() {
-	fmt.Println(describe)
+	fmt.Println(describeAddress)
 	for _, name := range LocalAccounts() {
 		ks := FromAccountName(name)
 		allAccounts := ks.Accounts()
 		for _, account := range allAccounts {
 			fmt.Printf("%-48s\t%s\n", name, address.ToBech32(account.Address))
 		}
+	}
+	fmt.Println(describeBls)
+	for _, key := range LocalBlsKeys() {
+		fmt.Printf(strings.TrimSuffix(key, ".key"))
 	}
 }
 
