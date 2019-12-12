@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DefaultConfigDirName               = ".hmy_cli"
+	DefaultConfigDirName               = ".hmy"
 	DefaultConfigAccountAliasesDirName = "account-keys"
 	DefaultConfigBlsDirName            = "bls-keys"
 	DefaultPassphrase                  = ""
