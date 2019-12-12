@@ -59,9 +59,11 @@ func keysSub() []*cobra.Command {
 
 	cmdLocation := &cobra.Command{
 		Use:   "location",
-		Short: "Show where `hmy` keeps accounts & their keys",
+		Short: "Show where `hmy` keeps accounts and BLS keys",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Println(store.DefaultLocation())
+			out := fmt.Sprintf(`{"account-keys" : "%s", "bls-keys" : "%s""}`,
+				store.DefaultAccountLocation(), store.DefaultBlsLocation())
+			fmt.Println(c.JSONPrettyFormat(out))
 			return nil
 		},
 	}
